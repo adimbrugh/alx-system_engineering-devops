@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+import os
+import sys
+
+def custom_to_decimal(value, base_chars):
+    base = len(base_chars)
+    char_to_val = {char: i for i, char in enumerate(base_chars)}
+    num = 0
+    for char in value:
+        if char not in char_to_val:
+            print(f"Error: Invalid character '{char}' in input for base '{base_chars}'", file=sys.stderr)
+            sys.exit(1)
+        num = num * base + char_to_val[char]
+    return num
+
+def decimal_to_custom(num, base_chars):
+    base = len(base_chars)
+    if num == 0:
+        return base_chars[0]
+    result = ''
+    while num > 0:
+        result = base_chars[num % base] + result
+        num //= base
+    return result
+
+water_str = os.getenv("WATER")
+stir_str = os.getenv("STIR")
+
+water_base = "waetr"
+stir_base = "tir"
+bestchol_base = "bestchol"
+
+# Validate env vars
+if not water_str or not stir_str:
+    print("Error: Both WATER and STIR environment variables must be set.", file=sys.stderr)
+    sys.exit(1)
+
+# Convert to decimal
+water_dec = custom_to_decimal(water_str, water_base)
+stir_dec = custom_to_decimal(stir_str, stir_base)
+
+# Add and convert to bestchol
+total = water_dec + stir_dec
+print(decimal_to_custom(total, bestchol_base))
