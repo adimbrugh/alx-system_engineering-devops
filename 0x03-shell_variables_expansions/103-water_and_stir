@@ -4,7 +4,7 @@ import sys
 
 def custom_to_decimal(value, base_chars):
     base = len(base_chars)
-    char_to_val = {char: i for i, char in enumerate(base_chars)}
+    char_to_val = {char: idx for idx, char in enumerate(base_chars)}
     num = 0
     for char in value:
         if char not in char_to_val:
@@ -23,22 +23,24 @@ def decimal_to_custom(num, base_chars):
         num //= base
     return result
 
-water_str = os.getenv("WATER")
-stir_str = os.getenv("STIR")
+# Get environment variables
+water_str = os.getenv("WATER", "")
+stir_str = os.getenv("STIR", "")
 
+# Define base characters
 water_base = "waetr"
-stir_base = "tir"
-bestchol_base = "bestchol"
+stir_base = "tir."
+result_base = "bestchol"
 
-# Validate env vars
-if not water_str or not stir_str:
-    print("Error: Both WATER and STIR environment variables must be set.", file=sys.stderr)
-    sys.exit(1)
+# Convert both to decimal
+dec_water = custom_to_decimal(water_str, water_base)
+dec_stir = custom_to_decimal(stir_str, stir_base)
 
-# Convert to decimal
-water_dec = custom_to_decimal(water_str, water_base)
-stir_dec = custom_to_decimal(stir_str, stir_base)
+# Add the values
+total = dec_water + dec_stir
 
-# Add and convert to bestchol
-total = water_dec + stir_dec
-print(decimal_to_custom(total, bestchol_base))
+# Convert result to custom base
+result = decimal_to_custom(total, result_base)
+
+# Output
+print(result)
