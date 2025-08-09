@@ -1,0 +1,127 @@
+# 3-Scale up: Advanced Infrastructure Design
+
+
+Infrastructure Changes for Scale-Up
+Additions:
+1-1 More Server
+Why: Adding a new web server improves availability and scalability — it allows more concurrent user requests without overloading a single machine. It also provides redundancy in case one server fails.
+
+2-1 Load Balancer (HAProxy) in Cluster Mode
+Why: A single load balancer is a single point of failure. Adding a second HAProxy configured in active-passive or active-active clustering ensures load balancing continues even if one HAProxy fails. This increases high availability and fault tolerance.
+
+3-Split Components into Separate Servers:
+-Web Server (e.g., Nginx or Apache) → Handles HTTP requests, static assets (HTML, CSS, JS, images).
+Why: Separating the web server from the application server prevents one from impacting the performance of the other.
+
+-Application Server (e.g., Gunicorn, uWSGI, Node.js backend) → Runs business logic and API processing.
+Why: Dedicated resources for application logic improve performance and scalability.
+
+-Database Server (MySQL/PostgreSQL) → Stores persistent data.
+Why: Isolating the database server protects it from application/web traffic spikes and makes it easier to scale vertically or with replication.
+
+
+Updated Architecture Flow
+1-Users connect to a load balancer cluster (HAProxy #1 and HAProxy #2).
+2-Load balancers route traffic to multiple web servers.
+3-Web servers forward dynamic requests to application servers.
+4-Application servers interact with a dedicated database server.
+
+
+Key Benefits of This Setup
+1-High Availability: No single point of failure at the load balancer or server level.
+2-Scalability: Can add more web or application servers without affecting others.
+3-Performance: Dedicated resources per role mean less contention and more predictable performance.
+4-Security: DB is isolated from direct public access.
+
+---
+
+## Requirements
+
+I must add:
+1. **1 additional server**
+2. **1 load balancer (HAProxy)** configured in a **cluster** with the existing one
+3. Split components (web server, application server, database) each into their own server
+
+---
+
+## Updated Infrastructure Design
+
+### **Infrastructure Components**
+- **2 Load Balancers (HAProxy)**:  
+  - Configured in **active-passive** or **active-active** cluster mode.  
+  - Distributes traffic evenly across web servers.  
+  - Ensures high availability — if one fails, the other takes over.  
+
+- **2 Web Servers**:  
+  - Host static content and forward requests to the application servers.  
+  - Scales horizontally by adding more web servers as needed.  
+
+- **2 Application Servers**:  
+  - Run the backend application logic (e.g., Python/Django, PHP, Node.js).  
+  - Handles requests forwarded by web servers.  
+
+- **2 Database Servers**:  
+  - Configured in **primary-replica** mode for redundancy.  
+  - The primary handles writes, the replica handles reads.  
+
+---
+
+## **Why Each Additional Element is Added**
+
+### **1. Additional Server**
+- Adds redundancy: if one web or app server fails, the other continues to serve requests.
+- Allows load distribution: prevents a single server from being overloaded.
+
+### **2. Additional Load Balancer**
+- Avoids single point of failure (SPOF) for load balancing.
+- Cluster configuration ensures one LB automatically takes over if the other fails.
+
+### **3. Split Components into Separate Servers**
+- **Web Server**: Handles only static assets and HTTP requests — reducing load on app server.  
+- **Application Server**: Dedicated to executing application code — better performance under load.  
+- **Database Server**: Handles data storage and queries — isolation improves security and stability.  
+
+---
+
+## **High-Level Diagram**
+
+               Internet
+                   |
+            +---------------+
+            |    DNS Server |
+            +---------------+
+                   |
+         -----------------------
+         |                     |
+  +--------------+      +--------------+
+  | HAProxy LB 1 |<---->| HAProxy LB 2 |
+  +--------------+      +--------------+
+         |    (VRRP/Keepalived Cluster)
+         |
+   -------------------
+   |                 |
++-------+         +-------+
+|  Web  |         |  Web  |
+|Server1|         |Server2|
++-------+         +-------+
+   |                 |
++----------+     +----------+
+|  App  1  |     |  App  2  |
++----------+     +----------+
+       \           /
+        \         /
+      +--------------+
+      |   Database   |
+      +--------------+
+
+---
+
+## Repository Information
+
+- **GitHub repository**: `alx-system_engineering-devops`
+
+- **Directory**: `0x09-web_infrastructure_design`
+
+- **File**: `3-scale_up.md`
+
+---
