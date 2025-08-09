@@ -1,0 +1,83 @@
+# 2. Secured and Monitored Web Infrastructure
+
+## Overview
+A secure and monitored three-server infrastructure hosting **www.foobar.com**. 
+ 
+It includes:
+- **3 Servers** (Web/App + Database roles)
+- **1 Load Balancer**
+- **Nginx** web servers
+- **MySQL** database (Primary-Replica setup)
+- **3 Firewalls**
+- **1 SSL Certificate** for HTTPS
+- **3 Monitoring Clients** (e.g., Sumo Logic, Datadog, or Nagios agents)
+
+---
+
+## Diagram
+![Secured and Monitored Web Infrastructure](0x09-web_infrastructure_design/secured_and_monitored_web_infrastructure_digram.png)
+
+---
+
+## Components and Why They’re Added
+
+### Firewalls
+- **Why**: Control inbound and outbound network traffic based on predefined rules.
+- **Placement**:
+  1. Between the Internet and Load Balancer (filters public traffic)
+  2. Between Load Balancer and Web/App servers (internal security)
+  3. Between Application servers and Database server (database security)
+
+### SSL Certificate (HTTPS)
+- **Why**: Encrypts communication between the user and the server to ensure data confidentiality and integrity.
+- **Benefit**: Prevents eavesdropping and man-in-the-middle attacks.
+
+### Monitoring Clients
+- **Why**: Continuously track system performance, uptime, and alerts.
+- **How**: Installed on each server to collect metrics (CPU, RAM, disk, QPS) and send to a central monitoring service (e.g., Sumo Logic, Datadog).
+- **QPS Monitoring**: Configure monitoring tool to track HTTP requests per second on the web server (Nginx logs or application metrics).
+
+---
+
+## Data Flow
+1. User enters `https://www.foobar.com` in browser.
+2. DNS resolves to Load Balancer IP.
+3. Firewall #1 filters incoming requests.
+4. Load Balancer terminates SSL (decrypts traffic).
+5. Firewall #2 filters requests before reaching Web/App servers.
+6. Web/App servers handle requests, query DB if needed.
+7. Firewall #3 protects DB from unauthorized access.
+8. Monitoring agents send metrics to monitoring service.
+
+---
+
+## Issues with This Infrastructure
+
+1. **SSL Termination at Load Balancer**
+   - Issue: Traffic between Load Balancer and backend servers is unencrypted, could be intercepted if internal network is compromised.
+
+2. **Only One Writable MySQL Server**
+   - Issue: Single point of failure for writes; if the primary fails, no new data can be written until failover.
+
+3. **Servers with All Components**
+   - Issue: Resource contention (CPU/RAM) and potential security exposure if one component is compromised (e.g., DB and app on same server).
+
+---
+
+## Requirements Fulfilled
+- ✅ 3 firewalls
+- ✅ SSL certificate for HTTPS
+- ✅ 3 monitoring clients
+- ✅ Secure traffic
+- ✅ Monitoring for performance & availability
+- ✅ Diagram showing infrastructure and security layers
+
+---
+
+**GitHub Repository**: [alx-system_engineering-devops]
+
+**Directory**:
+`0x09-web_infrastructure_design`
+
+**File**:
+`2-secured_and_monitored_web_infrastructure`
