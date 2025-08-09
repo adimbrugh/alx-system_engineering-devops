@@ -1,0 +1,88 @@
+
+
+# 0. Simple Web Stack
+
+## Overview
+A single-server web infrastructure hosting a website reachable at **www.foobar.com**.
+
+The stack uses:
+- **1 Server** (IP: `8.8.8.8`)
+- **Web Server**: Nginx
+- **Application Server**: (e.g., Gunicorn, PHP interpreter)
+- **Application Files**: my code base
+- **Database**: MySQL
+- **Domain Name**: foobar.com with `www` record pointing to `8.8.8.8`
+
+---
+
+## Diagram
+![Simple Web Stack Diagram](0x09-web_infrastructure_design/simple_web_stack_digram.png)
+
+---
+
+## Data Flow
+1. **User** enters `www.foobar.com` in browser.
+2. **DNS** resolves `www.foobar.com` → IP `8.8.8.8`.
+3. **Browser** sends HTTP/HTTPS request to server at `8.8.8.8`.
+4. **Nginx (Web Server)** receives the request.
+5. **Web server** serves static files or forwards dynamic requests to the **Application Server**.
+6. **Application Server** processes the request and queries **MySQL Database** if needed.
+7. Response is sent back via **Web Server → Browser**.
+
+---
+
+## Component Roles
+
+### Server
+A powerful computer providing services over a network. Hosts the web server, application server, and database.
+
+### Domain Name
+Human-friendly identifier that maps to an IP address.
+
+### DNS Record for `www`
+`A` record pointing `www.foobar.com` → `8.8.8.8`.
+
+### Web Server (Nginx)
+Handles incoming HTTP/HTTPS requests, serves static files, and forwards dynamic requests to the application server.
+
+### Application Server
+Executes application code, processes business logic, interacts with the database.
+
+### Database (MySQL)
+Stores and manages structured data for the application.
+
+### Communication Protocol
+HTTP/HTTPS over TCP/IP.
+
+---
+
+## Issues with This Infrastructure
+
+1. **Single Point of Failure (SPOF)**
+   - If the server goes down, the website is unavailable.
+
+2. **Downtime During Maintenance**
+   - Restarting the server or application causes temporary unavailability.
+
+3. **No Scalability**
+   - Cannot handle large traffic spikes due to single-server resource limits.
+
+---
+
+## Requirements Fulfilled
+- ✅ 1 server
+- ✅ Nginx web server
+- ✅ Application server
+- ✅ Application files
+- ✅ MySQL database
+- ✅ Domain name with `A` record pointing to server IP
+
+---
+
+**GitHub Repository**: [alx-system_engineering-devops]
+
+**Directory**:
+`0x09-web_infrastructure_design`  
+
+**File**:
+`0-simple_web_stack`
