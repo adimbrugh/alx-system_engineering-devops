@@ -1,0 +1,86 @@
+# 1. Distributed Web Infrastructure
+
+## Overview
+A three-server web infrastructure hosting
+
+**www.foobar.com** with:
+- **2 Servers** running application & database components
+- **1 Load Balancer** (HAProxy)
+- **Web Server**: Nginx
+- **Application Server**: (e.g., Gunicorn, uWSGI, or PHP interpreter)
+- **Database**: MySQL (Primary-Replica setup)
+- **Application Files**: Code base deployed on both servers
+
+---
+
+## Diagram
+![Distributed Web Infrastructure Diagram](0x09-web_infrastructure_design/distributed_web_infrastructure_digram.png)
+
+---
+
+## Components and Why They’re Added
+
+### Load Balancer (HAProxy)
+- **Why**: Distributes incoming traffic across multiple servers to improve availability and scalability.
+- **Configured with**: *Round Robin* distribution algorithm.
+  - **How it works**: Sends each new incoming request to the next server in the list, looping back to the start when it reaches the end.
+- **Setup Type**: *Active-Active*
+  - **Active-Active**: All servers actively handle requests at the same time.
+  - **Active-Passive**: One server handles requests while the other(s) stay on standby until needed.
+
+### Web Server (Nginx)
+- Handles HTTP/HTTPS requests, serves static files, and forwards dynamic requests to the application server.
+
+### Application Server
+- Runs the application code, processes business logic, interacts with the database.
+
+### Database (MySQL) – Primary-Replica (Master-Slave) Setup
+- **Primary Node**: Handles all write operations (INSERT, UPDATE, DELETE).
+- **Replica Node**: Synchronizes with the primary node and handles read-only queries to offload traffic.
+- **Why**: Improves read performance and adds redundancy in case the primary node fails.
+
+---
+
+## Data Flow
+1. User enters `www.foobar.com` in browser.
+2. DNS resolves `www.foobar.com` → Load Balancer IP.
+3. Load Balancer (HAProxy) routes request to one of the application servers using *Round Robin*.
+4. Web Server (Nginx) processes request or forwards to Application Server.
+5. Application Server queries the Database (writes go to Primary, reads may go to Replica).
+6. Response sent back through the Load Balancer → User’s browser.
+
+---
+
+## Issues with This Infrastructure
+
+1. **SPOF (Single Point of Failure)**
+   - The Load Balancer itself is a SPOF (if it fails, the whole system goes down).
+   - Database Primary node is also a SPOF for write operations.
+
+2. **Security Issues**
+   - No firewall to filter malicious traffic.
+   - No HTTPS, meaning data (including credentials) travels unencrypted.
+
+3. **No Monitoring**
+   - No system in place to detect downtime, high load, or failures.
+
+---
+
+## Requirements Fulfilled
+- ✅ 2 servers
+- ✅ Nginx web server
+- ✅ Application server
+- ✅ HAProxy load balancer
+- ✅ Application files deployed to both servers
+- ✅ MySQL database in Primary-Replica setup
+- ✅ Diagram showing infrastructure flow
+
+---
+
+**GitHub Repository**: [alx-system_engineering-devops]
+
+**Directory**:
+`0x09-web_infrastructure_design`
+
+**File**:
+`1-distributed_web_infrastructure`
